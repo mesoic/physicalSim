@@ -172,7 +172,6 @@ class MonteCarlo(object):
 		self.FIELD = _FIELD
 		self.counter = 0
 
-
 		# Initialize the random number generator
 		self._RANDOM_ = r.SystemRandom()
 
@@ -220,80 +219,7 @@ class MonteCarlo(object):
 		self.LSS_a = L.SS_a/self.GAMMA_L_max
 		self.LSS = self.GAMMA_Lss
 
-		# Define the scattering matricies. These contains the probabilities
-		# of all the various scattering events at each energy for both valleys
-		# Given the energy, and the valley one is living in, one will generate
-		# A scattering event. Each COLUMN represents an energy range and is
-		# accessed via [:,i]. The sum of each column is unity.
-		self.G_SCATTERING = np.asarray( [
-			self.GSS, 
-			self.GAC,
-			self.GOP_e, 
-			self.GOP_a, 
-			self.GCS_e, 
-			self.GCS_a
-		])
 
-		self.L_SCATTERING = np.asarray( [
-			self.LSS,
-			self.LOP_e,
-			self.LSC_e,
-			self.LSS_e,
-			self.LAC,
-			self.LOP_a,
-			self.LSC_a,
-			self.LSS_a
-		])
-
-		# Component vectors. This tells which way to calculate new components
-		# given some scattering mechanism.
-		self.G_COMP = np.asarray([
-			"_Self", 
-			"__Iso",
-			"anIso", 
-			"anIso",
-			"__Iso", 
-			"__Iso"
-		])
-		
-		self.L_COMP = np.asarray([
-			"_Self",
-			"anIso",
-			"__Iso",
-			"__Iso",
-			"__Iso",
-			"anIso",
-			"__Iso",
-			"__Iso"
-		])
-
-
-		# An increment/decrement vector for the energy of the final state
-		# after scattering.
-		self.G_ENERGY = np.asarray([
-			0.0, 
-			0.0,
-			-G.wOP*U.hbar, 
-			G.wOP*U.hbar,
-			-G.wE*U.hbar-G.D, 
-			G.wE*U.hbar-G.D
-		])
-
-		self.L_ENERGY = np.asarray([
-			0.0, 
-			0.0,
-			-G.wOP*U.hbar, 
-			G.wOP*U.hbar,
-			-G.wE*U.hbar+G.D, 
-			G.wE*U.hbar+G.D,
-			-G.wE*U.hbar, 
-			G.wE*U.hbar
-		])
-
-		# Valley switching vectors. These contains the final state
-		# of each scattering event (valley).
-		self.G_VALLEY = np.asarray(["G","G","G","G","L","L"])
-		self.L_VALLEY = np.asarray(["L","L","L","L","G","G","L","L"])
 
 		# Initialize the electron object. This will set the initial energy E,
 		# valley "G", k-vector and its components, and time 0. The calculation

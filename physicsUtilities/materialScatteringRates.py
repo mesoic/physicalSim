@@ -24,8 +24,12 @@
 #	SOFTWARE.
 #
 
-#!/usr/bin/env python 
+#!/usr/bin/env python
+import numpy as np
+
+# Import phonon scattering rates
 from .phononScatteringRates import phononScatteringRates
+from .phononScatteringRates import phononScatteringData
 
 # Plotting
 import matplotlib.pyplot as plt
@@ -40,7 +44,7 @@ class materialScatteringRates:
 		self.PSR = phononScatteringRates()
 
 		# Build scattering rates
-		self.scatteringRates = self.buildScatteringRates(energy, material)
+		self.buildScatteringRates(energy, material)
 
 		# Store energy vector and material (for plotting)
 		self.material = material
@@ -51,7 +55,7 @@ class materialScatteringRates:
 	def buildScatteringRates(self, energy, material):
 		
 		# Calculate rates
-		return {
+		self.scatteringRates = {
 
 			# Gamma valley
 
@@ -93,40 +97,39 @@ class materialScatteringRates:
 			},
 		}
 
+		# Sum scattering rates (Gamma)
+		self.scatteringRates["Gsum"] = phononScatteringData( (
+			self.getScatteringRate("Gac") + 
+			self.getScatteringRate("Gop", "Absorption") + self.getScatteringRate("Gop", "Emission") +
+			self.getScatteringRate("GtoL","Absorption") + self.getScatteringRate("GtoL","Emission")
+			) , None )
+
+		# Sum scattering rates (L)
+		self.scatteringRates["Lsum"] = phononScatteringData( (
+			self.getScatteringRate("Lac") + 
+			self.getScatteringRate("Lop", "Absorption") + self.getScatteringRate("Lop", "Emission") +
+			self.getScatteringRate("LtoG","Absorption") + self.getScatteringRate("LtoG","Emission") +
+			self.getScatteringRate("LtoL","Absorption") + self.getScatteringRate("LtoL","Emission")
+			) , None )
+
+
 	# Method to get scattering rate
 	def getScatteringRate(self, key, subkey = None):
 
-		# For acoustic phonons
-		if subkey is None:
-
-			return self.scatteringRates[key].rate
-
 		# General case
-		else:
+		if subkey is not None:
 
 			return self.scatteringRates[key][subkey].rate
 
-	# Method to return the sum of scattering rates for a given valley 
-	def sumSactteringRates(self, valley = "G"):
-
-		if valley in ["G", "Gamma"]:
-
-			return ( self.getScatteringRate("Gac") + 
-				self.getScatteringRate("Gop", "Absorption") + self.getScatteringRate("Gop", "Emission") +
-				self.getScatteringRate("GtoL","Absorption") + self.getScatteringRate("GtoL","Emission")
-			)
-
-		elif valley in ["L"]:
-		
-			return ( self.getScatteringRate("Gac") + 
-				self.getScatteringRate("Lop", "Absorption") + self.getScatteringRate("Lop", "Emission") +
-				self.getScatteringRate("LtoG","Absorption") + self.getScatteringRate("LtoG","Emission") +
-				self.getScatteringRate("LtoL","Absorption") + self.getScatteringRate("LtoL","Emission")
-			)
-
+		# For acoustic phonons and sum rates
 		else:
-			
-			return None	
+
+			return self.scatteringRates[key].rate
+
+	# Method to transform zero scattering rates into nan
+	def zeroAsNan(self, rate):
+
+		return [ np.nan if _ == 0 else _ for _ in rate ] 
 
 
 	# Method to show all scattering rates
@@ -146,16 +149,16 @@ class materialScatteringRates:
 
 		# Optical Phonons (Gamma)
 		ax01 = fig.add_subplot(gs[0, 1])
-		h0,  = ax01.plot(self.energy, self.getScatteringRate("Gop", "Absorption") )
-		h1,  = ax01.plot(self.energy, self.getScatteringRate("Gop", "Emission") )
+		h0,  = ax01.plot(self.energy, self.zeroAsNan( self.getScatteringRate("Gop", "Absorption") ) )
+		h1,  = ax01.plot(self.energy, self.zeroAsNan( self.getScatteringRate("Gop", "Emission") ) )
 		ax01.set_xlabel("Energy $(eV)$")
 		ax01.set_ylabel("$\Gamma$ Optical $(s^{-1})$")
 		ax01.legend([h0,h1],["Absorption", "Emission"])
 
 		# Optical Phonons (L)
 		ax02 = fig.add_subplot(gs[0, 2])
-		h0,  = ax02.plot(self.energy, self.getScatteringRate("Lop", "Absorption") )
-		h1,  = ax02.plot(self.energy, self.getScatteringRate("Lop", "Emission") )
+		h0,  = ax02.plot(self.energy, self.zeroAsNan( self.getScatteringRate("Lop", "Absorption") ) )
+		h1,  = ax02.plot(self.energy, self.zeroAsNan( self.getScatteringRate("Lop", "Emission") ) )
 		ax02.set_xlabel("Energy $(eV)$")
 		ax02.set_ylabel("L Optical $(s^{-1})$")
 		ax02.legend([h0,h1],["Absorption", "Emission"])
@@ -187,4 +190,15 @@ class materialScatteringRates:
 
 		# Add a tile and show plot
 		fig.suptitle("%s electron-phonon scattering rates (T = %sK)"%(self.material.name, self.material.T))
+
+		# Plot sum of scattering rates
+		fig = plt.figure()
+		ax0 = fig.add_subplot(111)
+		h0, = ax0.semilogy( self.energy, self.zeroAsNan( self.getScatteringRate("Gsum") ) )
+		h1, = ax0.semilogy( self.energy, self.zeroAsNan( self.getScatteringRate("Lsum") ) )
+		ax0.set_xlabel("Energy $(eV)$")
+		ax0.set_ylabel("$\Sigma \Gamma_i$ $(s^{-1})$")
+		ax0.set_title("Total Scattering Rate")
+		ax0.legend([h0,h1],["$\Gamma$ Valley","L valley"])
+
 		plt.show()

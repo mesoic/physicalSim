@@ -41,10 +41,10 @@ class phononScatteringData:
 		# Scattering metadata for phonon
 		#
 		#	 meta = {
-		#		"type"	= ["acoustic", "optical", "intervalley"],
+		#		"type"	= ["acoustic", "optical", "intervalley"]
 		#		"sym"	= ["isotropic", "anisotropic"
 		#		"mode"	= ["Absorption, Emission", None] 
-		#		"dE" 	= associated change in energy>,
+		#		"dE" 	= associated change in energy
 		#		"Vi" 	= valley before scattring
 		#		"Vf"	= valley after scattring
 		# 	}
@@ -136,10 +136,10 @@ class phononScatteringRates:
 
 				GAMMA.append( F * np.log( delta ) / np.sqrt(_Ei) )
 
-			# Otherwise append np.nan
+			# Otherwise append 0.0
 			else:
 
-				GAMMA.append( np.nan )
+				GAMMA.append( 0.0 )
 
 		# Phonon metadata
 		META = {
@@ -191,7 +191,7 @@ class phononScatteringRates:
 		for _Ef in Ef: 
 
 			# Check final energy Ef > 0.0 (transition allowed)
-			GAMMA.append( (a / b) * np.sqrt(_Ef) if _Ef > 0.0 else np.nan )
+			GAMMA.append( (a / b) * np.sqrt(_Ef) if _Ef > 0.0 else 0.0 )
 
 		# Prepare metadata
 		META = {
@@ -243,7 +243,7 @@ class phononScatteringRates:
 		for _Ef in Ef: 
 
 			# Check final energy Ef > 0.0 (transition allowed)
-			GAMMA.append( (a / b) * np.sqrt(_Ef) if _Ef > 0.0 else np.nan )
+			GAMMA.append( (a / b) * np.sqrt(_Ef) if _Ef > 0.0 else 0.0 )
 
 		# Prepare metadata
 		META = {
@@ -295,7 +295,7 @@ class phononScatteringRates:
 		for _Ef in Ef: 
 
 			# Check final energy Ef > 0.0 (transition allowed)
-			GAMMA.append( (a / b) * np.sqrt(_Ef) if _Ef > 0.0 else np.nan )
+			GAMMA.append( (a / b) * np.sqrt(_Ef) if _Ef > 0.0 else 0.0 )
 
 		# Prepare metadata
 		META = {
