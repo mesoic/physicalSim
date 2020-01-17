@@ -1,11 +1,43 @@
+# ---------------------------------------------------------------------------------
+# 	diodePotential -> poissonDiode.py
+#	Copyright (C) 2020 Michael Winters
+#	github: https://github.com/mesoic
+#	email:  mesoic@protonmail.com
+# ---------------------------------------------------------------------------------
+#	
+#	Permission is hereby granted, free of charge, to any person obtaining a copy
+#	of this software and associated documentation files (the "Software"), to deal
+#	in the Software without restriction, including without limitation the rights
+#	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#	copies of the Software, and to permit persons to whom the Software is
+#	furnished to do so, subject to the following conditions:
+#	
+#	The above copyright notice and this permission notice shall be included in all
+#	copies or substantial portions of the Software.
+#	
+#	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#	SOFTWARE.
+#
+
 #!/usr/bin/env python
 import numpy as np
 import numpy.linalg as la
 import matplotlib.pyplot as plt
 
-import discreteDifferentialEquation as DDE
+# For solver
+from copy import deepcopy 
 
-from Materials import Silicon
+# So we can access physicsUtilities directory
+import sys
+sys.path.insert(1, '..')
+
+from physicsUtilities.materialConstants import Silicon
+import physicsUtilities.discreteDifferentialEquation as DDE
 
 # A class to set up and solve Poisson via the finite difference method
 class pnJunction:
@@ -72,12 +104,15 @@ class pnJunction:
 	#
 	def solve(self, phi):
 
+		# Pass by value behaviour
+		phi_solve = deepcopy(phi)
+
 		# Build operators
 		DiscreteOperators = DDE.Operators(self.simsize, self.dx / self.material.Ld) 
 
 		# Calculate boundary conditions
 		BoundaryConditions = DDE.BoundaryConditions(self.simsize, self.dx / self.material.Ld)
-		BoundaryConditions.addDirchlet(phi[ 0],  pos="0")
+		BoundaryConditions.addDirchlet(phi[ 0], pos="0")
 		BoundaryConditions.addDirchlet(phi[-1], pos="N")
 
 		# Convergence comparison
@@ -89,7 +124,7 @@ class pnJunction:
 			while True:
 
 				# Calculate cost function
-				eF = np.dot(DiscreteOperators.DD(), phi) + BoundaryConditions.evaluate(phi) - self.f(phi)
+				eF = np.dot(DiscreteOperators.DD(), phi_solve) + BoundaryConditions.evaluate(phi) - self.f(phi_solve)
 
 				# Calculate convergence criteria 
 				delta = ( sum( np.abs(eF) ) / self.simsize )
@@ -104,25 +139,25 @@ class pnJunction:
 
 					print( "Maximum number of iterations %s", self.step)
 						
-					return phi
+					return phi_solve
 
 				if ( delta ) < self.converge:
 
-					return phi
+					return phi_solve
 
 				else:
 			
-					J, dF = DiscreteOperators.DD(), self.df(phi) 
+					J, dF = DiscreteOperators.DD(), self.df(phi_solve) 
 
 					for i in range( self.simsize ):
 
 						J[i][i]	-= dF[i]
 
-					phi -= self.epsilon * np.dot( la.inv(J) , eF )
+					phi_solve -= self.epsilon * np.dot( la.inv(J) , eF )
 
 					self.step += 1
 
-			return phi		
+			return phi_solve
 
 
 if __name__ == "__main__":
@@ -143,15 +178,19 @@ if __name__ == "__main__":
 		"maxiter" : 10
 	}
 
+	# Note that "npoints = N" will result in a domain of len = N - 2 
+	# due to the inclusion of boundary conditions
 	diode = pnJunction(config)
 
 	# Guess function (phi' = phi/Vt scale)
 	N0  = 0.5 * ( np.sqrt( ( diode.Na - diode.Nd )**2 + 4*diode.material.ni**2 ) + diode.Nd - diode.Na )
 	phi = np.log( N0 / diode.material.ni  ) 
 
-
-	plt.plot( toum(diode.x), diode.material.Vt * phi )	
+	# Call the solver
 	phi_solve = diode.solve( phi )
+
+	# Plot results
+	plt.plot( toum(diode.x), diode.material.Vt * phi )	
 	plt.plot( toum(diode.x), diode.material.Vt * phi_solve ) 
 	plt.show()
 
