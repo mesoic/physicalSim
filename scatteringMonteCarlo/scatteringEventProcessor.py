@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------
-# 	physicsUtilities -> velocityFieldUtilities.py
+# 	physicsUtilities -> scatteringEventProcessor.py
 #	Copyright (C) 2020 Michael Winters
 #	github: https://github.com/mesoic
 #	email:  mesoic@protonmail.com
@@ -61,17 +61,19 @@ class solidStateElectron:
 		self.m = self.material.effectiveMass( valley )
 		self.K = cylindricalWavevector(0.0, 0.0)
 		self.E = 0.0
+		self.v = 0.0
 
 	# Update electron state
 	def update(self, E, K, valley ):
 	
 		# Electron valley occupancy
-		self.valley = valley			
+		self.valley = valley
 
 		# Update perameters
 		self.m = self.material.effectiveMass( valley )
 		self.K = K
 		self.E = E
+		self.v = ( self.K.kz * self.material.hbar ) / self.m
 
 # The purpouse of this class is to process to prepare wavevectors an electron that has 
 # undergone a scattering event into a state with energy Ef. For scattering events, we 
@@ -99,7 +101,7 @@ class scatteringEventProcessor:
 		const = physicalConstants()
 
 		# Return magnitude of wavevector
-		return np.sqrt( (2.0 * mass * Ef) / (const.hbar**2) )
+		return np.sqrt( (2.0 * mass * np.abs(Ef) ) / (const.hbar**2) )
 
 	# Return energy for a given wavevector
 	def magE(self, mass, Kf ):

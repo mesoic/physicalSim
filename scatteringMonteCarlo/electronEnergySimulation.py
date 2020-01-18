@@ -70,23 +70,29 @@ if __name__ == "__main__":
 	Ldata[:] = np.nan
 	Tdata[:] = np.nan
 
+	# Parameter key
+	data_key = "energy"
+
 	# loop through valley occupancy
 	for i,V in enumerate(Simulation.result["valley"]):
 
 		if V == "G":
-			Gdata[i] = Simulation.result["energy"][i] 
+			Gdata[i] = Simulation.result[ data_key ][i] 
 
 		if V == "L":
-			Ldata[i] = Simulation.result["energy"][i] 
+			Ldata[i] = Simulation.result[ data_key ][i] 
 
 		try: 
 			if ( ( V == "G" and Simulation.result["valley"][i-1] == "L" ) or 
 			 	( V == "L" and Simulation.result["valley"][i-1] == "G" ) ):
 
-			 	Tdata[i-1] = Simulation.result["energy"][i-1]
-			 	Tdata[i] = Simulation.result["energy"][i]
+			 	Tdata[i-1] = Simulation.result[data_key][i-1]
+			 	Tdata[i] = Simulation.result[data_key][i]
 		except: 
 			pass
+
+	#print(np.mean(Simulation.result["energy"] ))	
+	#print(np.mean(k.kz for k in Simulation.result["wavevector"]) )	
 
 	# Plot results
 	fig = plt.figure()

@@ -75,10 +75,12 @@ class scatteringMonteCarlo:
 
 		# Dictionary to store results
 		self.result = {
+			"time" 		: [0.0],
 			"valley"	: [self.electron.valley],
-			"wavevector": [self.electron.K],
 			"energy"	: [self.electron.E],
-			"time" 		: [0.0]
+			#"wavevector": [self.electron.K],
+			"velocity"	: [self.electron.v],
+			"field"		: self.field
 		}
 
 	# Apply electric field to electron for simulated flight time (tau)
@@ -114,4 +116,6 @@ class scatteringMonteCarlo:
 
 			# Update energy vector
 			self.result["valley"].append(self.electron.valley)
-			self.result["energy"].append(self.electron.E)
+			self.result["energy"].append(self.electron.E)	
+			self.result["velocity"].append(self.electron.v)
+			#self.result["wavevector"].append(self.electron.K)
