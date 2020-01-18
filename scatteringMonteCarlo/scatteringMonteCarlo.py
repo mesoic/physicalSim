@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------
-# 	physicsUtilities -> velocityFieldSimulation.py
+# 	physicsUtilities -> scatteringMonteCarlo.py
 #	Copyright (C) 2020 Michael Winters
 #	github: https://github.com/mesoic
 #	email:  mesoic@protonmail.com
@@ -32,24 +32,17 @@ import random
 import sys
 sys.path.insert(1, '..')
 
-# Import physical and material constants
-from physicsUtilities.materialConstants import GaAs
-from physicsUtilities.physicalConstants import physicalConstants
-
 # Import scattering rates object
 from physicsUtilities.materialScatteringRates import materialScatteringRates
 
 # Import simulation local utilities
-from velocityFieldUtilities import solidStateElectron
-from velocityFieldUtilities import cylindricalWavevector
-from velocityFieldUtilities import scatteringEventProcessor
-
-# Matplotlib
-import matplotlib.pyplot as plt
+from scatteringEventProcessor import solidStateElectron
+from scatteringEventProcessor import cylindricalWavevector
+from scatteringEventProcessor import scatteringEventProcessor
 
 # A class to simulate velocity saturation with intervalley scattering. 
 # via Monte Carlo methods.
-class velocityFieldSimulation:
+class scatteringMonteCarlo:
 
 	# We want to 
 	def __init__(self, config):
@@ -63,54 +56,39 @@ class velocityFieldSimulation:
 		self.field	  = config["field"]
 		self.events   = config["events"] 
 
-		# Calculate scattering rates for phonon processes
-		self.rates = materialScatteringRates( self.energy, self.material )
-
 		# Initialize solid state electron object
 		self.electron = solidStateElectron( self.material, "G" )
 
+		# Calculate scattering rates for phonon processes
+		self.rates = materialScatteringRates( self.energy, self.material )
+
+		# Build scattering event processor for calculated rates
+		self.Processor = scatteringEventProcessor( self.rates )
+
 	# This method will randomize the initial state of the electon	
-	def randomizeInitial(self, Ef = 0.1):
+	def randomizeInitial(self, Emax = 0.05):
 		
-		# Initialize scattering event processor
-		Processor = scatteringEventProcessor()
-		Processor.isotropicScatteringEvent(self.electron, Ef, "G")
+		r = self.random.random()
+
+		# Initialize scattering event processor 
+		self.Processor.isotropicScatteringEvent(self.electron, Emax*r, "G")
 
 		# Dictionary to store results
 		self.result = {
+			"valley"	: [self.electron.valley],
 			"wavevector": [self.electron.K],
 			"energy"	: [self.electron.E],
 			"time" 		: [0.0]
 		}
 
-	# Method to simulate the time between scattering events. 
-	def generateFlightTime(self):
-
-		# Throw a random number on interval [0, 1]
-		r = self.random.random()
-
-		# Get total scattering rate for current valley
-		if self.electron.valley in ["G", "Gamma"]:
-
-			G = self.rates.getScatteringRate("Gsum")
-
-		if self.electron.valley in ["L"]:
-			
-			G = self.rates.getScatteringRate("Lsum")
-
-
-		# Simulate new time interval
-		tau  = ( -1.0/ np.max(G) ) * np.log(r)
-
-		# Update elapsed time vector (recursively)
-		time = tau + self.result["time"][-1]
-
-		# Return free flight time
-		return tau, time
-
 	# Apply electric field to electron for simulated flight time (tau)
-	def applyElectricField(self, Processor, tau):
-		
+	def applyElectricField(self):
+
+		# Generate a flight time for our electon 
+		tau  = self.Processor.generateFlightTime(self.electron)
+		time = self.result["time"][-1] + tau
+		self.result["time"].append(time)
+
 		# Calculate the change in components wavevector 
 		# due to acceleration in an electric field
 		dKz = ( -self.field * tau) / self.material.hbar
@@ -120,49 +98,20 @@ class velocityFieldSimulation:
 		dK  = cylindricalWavevector(dKz, dKr)
 
 		# Update electron state
-		Processor.accelerationEvent(self.electron, dK)
+		self.Processor.accelerationEvent(self.electron, dK)
 
 	# Run the simulation
-	def runVelocityField(self):
-
-		# Initialize scattering event processor
-		Processor = scatteringEventProcessor()
+	def run(self):
 
 		# Interate over number of scattering events
-		for _ in range( int(self.events) ):
-
-			# Generate a flight time
-			tau, time  = self.generateFlightTime()
+		for _ in range( int(self.events) - 1 ):
 
 			# Apply electric field to electron
-			self.applyElectricField(Processor, tau)
+			self.applyElectricField()
 
-			# Update simulation data
-			self.result["time"].append(time)
+			# Simulate scattering event
+			self.Processor.generateScatteringEvent(self.electron)
+
+			# Update energy vector
+			self.result["valley"].append(self.electron.valley)
 			self.result["energy"].append(self.electron.E)
-
-# Main program
-if __name__ == "__main__":
-
-	# Define energy range to simulate
-	energy = np.linspace(0.0, 1.0, 100)
-
-	# Generate configuration dictionary
-	config = {
-		"material"	: GaAs(),
-		"energy"	: energy,
-		"field"		: 1000,
-		"events"	: 1e3
-	}
-
-	# Initialize monte carlo simulation
-	Simulation = velocityFieldSimulation(config)
-	Simulation.randomizeInitial()
-	
-	# Run simulation
-	Simulation.runVelocityField()
-
-	# Plot results
-	plt.plot(Simulation.result["time"], Simulation.result["energy"])
-	plt.show()
-

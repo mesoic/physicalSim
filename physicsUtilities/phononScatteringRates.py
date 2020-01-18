@@ -42,7 +42,7 @@ class phononScatteringData:
 		#
 		#	 meta = {
 		#		"type"	= ["acoustic", "optical", "intervalley"]
-		#		"sym"	= ["isotropic", "anisotropic"
+		#		"sym"	= ["isotropic", "anisotropic"]
 		#		"mode"	= ["Absorption, Emission", None] 
 		#		"dE" 	= associated change in energy
 		#		"Vi" 	= valley before scattring
@@ -50,6 +50,17 @@ class phononScatteringData:
 		# 	}
 		self.meta = meta
 
+	# Get rate
+	def get_rate(self):
+	
+		return self.rate
+
+	# Get meta
+	def get_meta(self):
+
+		return self.meta
+
+	
 # Phonon Scattering Rates Class
 class phononScatteringRates:
 

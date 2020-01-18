@@ -42,7 +42,7 @@ if __name__ == "__main__":
 	material = GaAs()
 
 	# Define energy range to simulate
-	energy = np.linspace(0.0, 1.0, 100) # (eV)
+	energy = np.linspace(0.0, 1.0, 5) # (eV)
 
 	# Calculate scattering rates for phonon processes
 	rates = materialScatteringRates( energy, material )

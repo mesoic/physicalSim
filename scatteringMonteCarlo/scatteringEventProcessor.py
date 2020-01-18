@@ -1,9 +1,3 @@
-
-
-# Import numpy
-import numpy as np
-import random
-
 # ---------------------------------------------------------------------------------
 # 	physicsUtilities -> velocityFieldUtilities.py
 #	Copyright (C) 2020 Michael Winters
@@ -29,6 +23,10 @@ import random
 #	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #	SOFTWARE.
 #
+
+# Import numpy and random
+import numpy as np
+import random
 
 # So we can access physicsUtilities directory
 import sys
@@ -75,7 +73,6 @@ class solidStateElectron:
 		self.K = K
 		self.E = E
 
-
 # The purpouse of this class is to process to prepare wavevectors an electron that has 
 # undergone a scattering event into a state with energy Ef. For scattering events, we 
 # consider a cylindrical coordinate system in which the z-axis is oriented parallel to 
@@ -83,28 +80,53 @@ class solidStateElectron:
 class scatteringEventProcessor:
 
 	# Namespace
-	def __init__(self):
+	def __init__(self, rates):
 
 		# Random number generator
 		self.random = random.SystemRandom()
 
+		# Store material scattering rates
+		self.rates = rates
+
+		# Buils scattering matrices
+		self.buildScatteringMatrices()
+
 	# Return magnitude of wavevector given energy: 
 	# 	|k|^2 = 2mE/hbar^2
-	def magK(self, electron, Ef): 
+	def magK(self, mass, Ef): 
 
 		# Initialize physical constants
 		const = physicalConstants()
 
 		# Return magnitude of wavevector
-		return np.sqrt( (2.0 * electron.m * Ef) / (const.hbar**2) )
+		return np.sqrt( (2.0 * mass * Ef) / (const.hbar**2) )
 
 	# Return energy for a given wavevector
-	def magE(self, electron, Kf ):
+	def magE(self, mass, Kf ):
 
 		const = physicalConstants()
 
-		return ( Kf.mag * const.hbar)**2 / (2.0 * electron.m)
+		return ( Kf.mag * const.hbar)**2 / (2.0 * mass)
 
+	# Method to simulate the time between scattering events. 
+	def generateFlightTime(self, electron):
+
+		# Throw a random number on interval [0, 1]
+		r = self.random.random()
+
+		# Get total scattering rate for current valley
+		if electron.valley in ["G", "Gamma"]:
+
+			# Simulate new time interval
+			tau  = ( -1.0/ self.Gmax ) * np.log(r)
+
+		if electron.valley in ["L"]:
+
+			# Simulate new time interval
+			tau  = ( -1.0/ self.Lmax ) * np.log(r)
+			
+		# Return free flight time
+		return tau
 
 	# A method to increment the k-vector for acceleration under free flight
 	def accelerationEvent(self, electron, dK):
@@ -121,27 +143,96 @@ class scatteringEventProcessor:
 		Kf  = cylindricalWavevector( Kzf, Krf )
 
 		# Calculate total energy afer increment
-		Ef  = self.magE( electron, Kf )
+		Ef  = self.magE( electron.m, Kf )
 
 		# Update electron state
 		electron.update(Ef, Kf, Vf)
 
+	# Method to build the scattering matrices
+	def buildScatteringMatrices(self):
+
+		# Cache maximum scattering rate (G valley)
+		self.Gmax = max( self.rates.getScatteringRate( ["Gsum"] ) )
+
+		Gmat = np.zeros( ( 7 ,len(self.rates.energy) ) )
+
+		for index in range( 5 ):
+
+			Gmat[index + 1, :] = Gmat[index, :] + self.rates.getScatteringRate( [index, "G"] ) / self.Gmax
+
+		Gmat[6, :] = np.ones( len(self.rates.energy) )
+
+		# Cache maximum scattering rate (L valley)
+		self.Lmax = max( self.rates.getScatteringRate( ["Lsum"] ) )
+
+		Lmat = np.zeros( ( 9 ,len(self.rates.energy) ) )
+
+		for index in range( 7 ):
+
+			Lmat[index + 1, :] = Lmat[index, :] + self.rates.getScatteringRate( [index, "L"] ) / self.Lmax
+
+		Lmat[8, :] = np.ones( len(self.rates.energy) )		
+
+		# Build an object to hold the scattering matrices
+		self.scatteringMatrices = {
+			"G" : Gmat,
+			"L" : Lmat
+		}
+
+	# Method to generate scattering event	
+	def generateScatteringEvent(self, electron):
+
+		# Find the column index in scattering matrix for the current electron energy. 
+		# This approximates the scattering rates for that energy
+		tmp = abs( self.rates.energy - electron.E)
+		col = list(tmp).index( min(tmp) )
+
+		# Extract the scattering rates from the scattering matrix
+		R = self.scatteringMatrices[electron.valley][:, col]		
+
+		# Throw a random number on interval [0, 1] to determine which event we will 
+		r = self.random.random()
+
+		# Find the index of scattering event. This is the index of the lower value 
+		# of the values that r is between in R.
+		index = np.argmax( R > r ) - 1
+
+		# Get the corresponding scattering event metadata. getScatteringMeta will 
+		# return None if we end up in the last slot of the scattering matrix. 
+		meta = self.rates.getScatteringMeta( [index, electron.valley] )
+		
+		# If we have thrown a real scattering event, must update the electron state
+		if meta is not None:
+
+			if meta["sym"] == "isotropic": 
+
+				self.isotropicScatteringEvent(electron, meta["dE"], meta["Vf"] )
+
+			if meta["sym"] == "anisotropic": 
+
+				self.anisotropicScatteringEvent(electron, meta["dE"], meta["Vf"] )
 
 	# This method simulates isotropic scattering events by generating a randomly 
 	# oriented wavevector for an electron that has scattered into a state with 
 	# energy (Ef) in dispersion valley (Vf) in ['Gamma', 'L'] and updates the 
 	# electron state accordingly.
-	def isotropicScatteringEvent(self, electron, Ef, Vf):
+	def isotropicScatteringEvent(self, electron, dE, Vf):
 
 		# Throw a random number on interval [0, 1]
 		r = self.random.random()
+
+		# Calculate the energy after scattering
+		Ef = electron.E + dE
 		
+		# Extract the effective mass for the final state valley 
+		m  = electron.material.effectiveMass(Vf)
+
 		# After an isotropic scattering event, the angle with respect to the 
 		# electric field oriented randomly on the interval [0, 2pi]. 
-		Kzf = self.magK(electron, Ef) * np.cos( 2.0 * np.pi * r ) 
+		Kzf = self.magK(m, Ef) * np.cos( 2.0 * np.pi * r ) 
 
 		# Calculate the radial component of the wavevector: |K|^2 = Kz^2 + Kr^2 
-		Krf = self.magK(electron, Ef) * np.sin( 2.0 * np.pi * r )
+		Krf = self.magK(m, Ef) * np.sin( 2.0 * np.pi * r )
 
 		# Initialize cylindrical wavevector
 		Kf  = cylindricalWavevector( Kzf, Krf )
@@ -149,19 +240,25 @@ class scatteringEventProcessor:
 		# Update electron state
 		electron.update(Ef, Kf, Vf)
 
-
 	# This method generates a wavevector that is preferentially oriented along 
 	# the original wavevector. 
-	def anisotropicWavevectorMC(self, electron, Ef, Ei, Vf):
+	def anisotropicScatteringEvent(self, electron, dE, Vf):
+
+		# Store initial and final energies
+		Ei = electron.E
+		Ef = electron.E + dE
+
+		# Extract the effective mass for the final state valley 
+		m  = electron.material.effectiveMass(Vf)
 
 		# Throw a random number on interval [0, 1]
 		r  = self.random.random()
 
 		# The parameter (xi) governing anisotropic scattering
-		xi = np.sqrt( Ei * Ef ) / ( np.sqrt(Ei) - np.sqrt(Ef) )
+		xi = 2.0 * np.sqrt( Ei * Ef ) / ( np.sqrt(Ei) - np.sqrt(Ef) )**2
 
 		# Calculate cos(theta) : theta scattering angle in a rotated system
-		cos_theta = ( (1 + x) - np.power( 1.0 + 2.0 * x, r) ) / x
+		cos_theta = ( (1 + xi) - np.power( 1.0 + 2.0 * xi, r) ) / xi
 		sin_theta = np.sqrt(1 - cos_theta**2)
 		cos_phi   = np.cos(2.0 * np.pi * r)
 
@@ -170,8 +267,8 @@ class scatteringEventProcessor:
 		sin_alpha = np.sqrt(1.0 - cos_alpha**2)
 	
 		# Calculate the new k componenets
-		Kzf = self.magK(Ef) * ( cos_alpha * cos_theta - sin_alpha * sin_theta *cos_phi )
-		Krf = self.magK(Ef) * np.sqrt(1 - ( cos_alpha * cos_theta - sin_alpha * sin_theta *cos_phi )**2)
+		Kzf = self.magK(m, Ef) * ( cos_alpha * cos_theta - sin_alpha * sin_theta *cos_phi )
+		Krf = self.magK(m, Ef) * np.sqrt(1 - ( cos_alpha * cos_theta - sin_alpha * sin_theta *cos_phi )**2)
 
 		# Initialize cylindrical wavevector
 		Kf  = cylindricalWavevector( Kzf, Krf )
