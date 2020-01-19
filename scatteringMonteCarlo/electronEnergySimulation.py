@@ -49,7 +49,7 @@ if __name__ == "__main__":
 	config = {
 		"material"	: GaAs(),
 		"energy"	: energy,
-		"field"		: 20000,
+		"field"		: 10000,
 		"events"	: 1000
 	}
 
@@ -97,8 +97,8 @@ if __name__ == "__main__":
 	# Plot results
 	fig = plt.figure()
 	ax0 = fig.add_subplot(111)
-	h0, = ax0.plot( Simulation.result["time"], Gdata, ".")
-	h1, = ax0.plot( Simulation.result["time"], Ldata, ".")
+	h0, = ax0.plot( Simulation.result["time"], Gdata)
+	h1, = ax0.plot( Simulation.result["time"], Ldata)
 	ax0.plot( Simulation.result["time"], Tdata, "grey")
 	ax0.set_xlabel("Time $(s)$")
 	ax0.set_ylabel("Energy $(eV)$")
