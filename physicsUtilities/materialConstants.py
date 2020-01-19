@@ -123,6 +123,7 @@ class GaAs(physicalConstants):
 		# GAMMA -> L valley energy gap (eV)
 		self.D = 0.36
 
+	# Method to return the effective mass	
 	def effectiveMass( self, valley ): 
 	
 		if valley in ["G", "GAMMA"]:

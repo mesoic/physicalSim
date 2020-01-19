@@ -26,7 +26,6 @@
 
 #!/usr/bin/env python
 import numpy as np
-import multiprocessing as mp
 
 # Import matplotlib
 import matplotlib.pyplot as plt
@@ -37,31 +36,12 @@ sys.path.insert(1, '..')
 
 # Import physical and material constants
 from physicsUtilities.materialConstants import GaAs
+from physicsUtilities.asyncFactory import asyncFactory
 
 # Import Monte Carlo simulation
 from scatteringMonteCarlo import scatteringMonteCarlo
 
-# Generic multiprocess class
-class asyncFactory:
-	
-	# Initialize with function and callback
-	def __init__(self):
-		
-		# Initialize multiprocess pool
-		self.pool = mp.Pool()
-
-	# async: call method
-	def call(self, func, callback, *args, **kwargs):
-
-		self.pool.apply_async(func, args, kwargs, callback)
-
-	# async: wait method
-	def wait(self):
-
-		self.pool.close()
-		self.pool.join()
-
-
+# Simulate electron velocity vs. electric field
 class velocityField:
 
 	def __init__(self, config):
@@ -114,8 +94,8 @@ if __name__ == "__main__":
 	# Generate configuration dictionary for simulation
 	config = {
 		"material"	: GaAs(),
-		"energy"	: np.linspace(0.0, 0.5, 500),
-		"field"		: np.logspace(1e3, 3e4, 50),
+		"energy"	: np.linspace(0.0, 2.0, 1000),
+		"field"		: np.linspace(300, 2e4, 100),
 		"events"	: 10000
 	}
 
@@ -124,17 +104,21 @@ if __name__ == "__main__":
 	Simulation = velocityField(config)
 	Simulation.run()
 
-
 	# Calculate mean energy
-	energy = []
+	sim_data = []
 	for key in Simulation.result.keys():
 
-		energy.append( np.mean( Simulation.result[key]["velocity"] ) ) 
+		sim_data.append( -1.0 * np.mean( Simulation.result[key]["velocity"] ) ) 
 
+	# Plot results	
+	fig = plt.figure()
+	ax0 = fig.add_subplot(111)
+	#ax1 = ax0.twinx()
 
+	h0, = ax0.plot( config["field"] / 1e3, sim_data, "tab:blue" )	
+	ax0.set_title("GaAs Velocity Field Simulation")
+	ax0.set_xlabel("Electric Field $(V/cm)$")
+	ax0.set_ylabel("Electron Velocity $(cm/s)$")
 
-	plt.plot( config["field"], energy )
+	# SHow simulation results
 	plt.show()
-
-	# Print simulation results
-	#print(Simulation.result)

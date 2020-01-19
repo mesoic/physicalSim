@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------
-# 	physicsUtilities -> materialScatteringRates.py
+# 	physicsUtilities -> asyncFactory.py
 #	Copyright (C) 2020 Michael Winters
 #	github: https://github.com/mesoic
 #	email:  mesoic@protonmail.com
@@ -24,27 +24,25 @@
 #	SOFTWARE.
 #
 
-#!/usr/bin/env python 
-import numpy as np
+#!/usr/bin/env python
+import multiprocessing as mp
 
-# So we can access physicsUtilities directory
-import sys
-sys.path.insert(1, '..')
-
-# Import physical and material constants
-from physicsUtilities.materialConstants import GaAs
-from physicsUtilities.materialScatteringRates import materialScatteringRates
-
-# Program to plot phonon scattering rates in GaAs
-if __name__ == "__main__":
-
-	# Define material to simulate
-	material = GaAs()
-
-	# Define energy range to simulate
-	energy = np.linspace(0.0, 0.5, 500) # (eV)
-
-	# Calculate scattering rates for phonon processes
-	rates = materialScatteringRates( energy, material )
-	rates.showRates()
+# Generic multiprocess class
+class asyncFactory:
 	
+	# Initialize with function and callback
+	def __init__(self):
+		
+		# Initialize multiprocess pool
+		self.pool = mp.Pool()
+
+	# async: call method
+	def call(self, func, callback, *args, **kwargs):
+
+		self.pool.apply_async(func, args, kwargs, callback)
+
+	# async: wait method
+	def wait(self):
+
+		self.pool.close()
+		self.pool.join()

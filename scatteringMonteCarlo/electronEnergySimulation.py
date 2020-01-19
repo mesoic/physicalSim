@@ -43,13 +43,13 @@ import matplotlib.pyplot as plt
 if __name__ == "__main__":
 
 	# Define energy range to simulate
-	energy = np.linspace(0.0, 1.0, 1000)
+	energy = np.linspace(0.0, 2.0, 1000)
 
 	# Generate configuration dictionary
 	config = {
 		"material"	: GaAs(),
 		"energy"	: energy,
-		"field"		: 7000,
+		"field"		: 20000,
 		"events"	: 1000
 	}
 
@@ -97,11 +97,11 @@ if __name__ == "__main__":
 	# Plot results
 	fig = plt.figure()
 	ax0 = fig.add_subplot(111)
-	h0, = ax0.plot( Simulation.result["time"], Gdata)
-	h1, = ax0.plot( Simulation.result["time"], Ldata)
+	h0, = ax0.plot( Simulation.result["time"], Gdata, ".")
+	h1, = ax0.plot( Simulation.result["time"], Ldata, ".")
 	ax0.plot( Simulation.result["time"], Tdata, "grey")
 	ax0.set_xlabel("Time $(s)$")
 	ax0.set_ylabel("Energy $(eV)$")
-	ax0.set_title("GaAs Electron Energy Simulation : |E| = 7kV/cm")
+	ax0.set_title("GaAs Electron Energy Simulation : |E| = 10kV/cm")
 	ax0.legend([h0,h1],["$\Gamma$ valley", "L valley"])
 	plt.show()

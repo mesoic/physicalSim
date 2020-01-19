@@ -72,7 +72,7 @@ class solidStateElectron:
 		# Update perameters
 		self.m = self.material.effectiveMass( valley )
 		self.K = K
-		self.E = E
+		self.E = E if E >= 0 else 0.0
 		self.v = ( self.K.kz * self.material.hbar ) / self.m
 
 # The purpouse of this class is to process to prepare wavevectors an electron that has 
@@ -100,8 +100,11 @@ class scatteringEventProcessor:
 		# Initialize physical constants
 		const = physicalConstants()
 
+		# Protect negative energy
+		Ef = Ef if Ef >= 0 else 0.0
+
 		# Return magnitude of wavevector
-		return np.sqrt( (2.0 * mass * np.abs(Ef) ) / (const.hbar**2) )
+		return np.sqrt( (2.0 * mass * Ef ) / (const.hbar**2) )
 
 	# Return energy for a given wavevector
 	def magE(self, mass, Kf ):
@@ -225,6 +228,9 @@ class scatteringEventProcessor:
 
 		# Calculate the energy after scattering
 		Ef = electron.E + dE
+
+		# Protect negative energy
+		Ef = Ef if Ef >= 0 else 0.0
 		
 		# Extract the effective mass for the final state valley 
 		m  = electron.material.effectiveMass(Vf)
@@ -256,11 +262,18 @@ class scatteringEventProcessor:
 		# Throw a random number on interval [0, 1]
 		r  = self.random.random()
 
-		# The parameter (xi) governing anisotropic scattering
-		xi = 2.0 * np.sqrt( Ei * Ef ) / ( np.sqrt(Ei) - np.sqrt(Ef) )**2
+		if (Ef >= 0):
 
-		# Calculate cos(theta) : theta scattering angle in a rotated system
-		cos_theta = ( (1 + xi) - np.power( 1.0 + 2.0 * xi, r) ) / xi
+			# The parameter (xi) governing anisotropic scattering
+			xi = 2.0 * np.sqrt( Ei * Ef ) / ( np.sqrt(Ei) - np.sqrt(Ef) )**2
+
+			# Calculate cos(theta) : theta scattering angle in a rotated system
+			cos_theta = ( (1 + xi) - np.power( 1.0 + 2.0 * xi, r) ) / xi
+
+		else: 
+
+			cos_theta = 1.0
+
 		sin_theta = np.sqrt(1 - cos_theta**2)
 		cos_phi   = np.cos(2.0 * np.pi * r)
 
