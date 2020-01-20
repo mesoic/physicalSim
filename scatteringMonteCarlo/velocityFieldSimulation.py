@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------
-# 	physicsUtilities -> electronVelocityField.py
+# 	scatteringMonteCarlo -> velocityFieldSimulation.py
 #	Copyright (C) 2020 Michael Winters
 #	github: https://github.com/mesoic
 #	email:  mesoic@protonmail.com
@@ -31,24 +31,27 @@ import pickle as p
 # Import matplotlib
 import matplotlib.pyplot as plt
 
+# Import ordered dict
 # So we can access physicsUtilities directory
 import sys
 sys.path.insert(1, '..')
 
 # Import physical and material constants
 from physicsUtilities.materialConstants import GaAs
-from physicsUtilities.asyncFactory import asyncFactory
+from physicsUtilities.genericUtilities import asyncFactory
 
 # Import Monte Carlo simulation
 from scatteringMonteCarlo import scatteringMonteCarlo
 
 # Simulate electron velocity vs. electric field
-class velocityField:
+class velocityFieldSimulation:
 
 	def __init__(self, config):
 
+		# Configuration data
 		self.config = config
 
+		# Dictionary to store simuilation results
 		self.result = {}
 	
 	# Simulation run method 
@@ -69,10 +72,10 @@ class velocityField:
 
 		# Generate configuration dictionary
 		config = {
-		 	"material"	: self.config["material"],
-		 	"energy"	: self.config["energy"],
-		 	"field"		: field,
-		 	"events"	: self.config["events"]
+			"material"	: self.config["material"],
+			"energy"	: self.config["energy"],
+			"events"	: self.config["events"],
+			"field"		: field
 		}
 
 		# Initialize monte carlo simulation
@@ -97,14 +100,14 @@ if __name__ == "__main__":
 		"material"	: GaAs(),
 		"energy"	: np.linspace(0.0, 2.0, 1000),
 		"field"		: np.linspace(300, 2e4, 100),
-		"events"	: 100000
+		"events"	: 1000
 	}
 
 
 	# Initialize simulation
-	Simulation = velocityField(config)
+	Simulation = velocityFieldSimulation(config)
 	Simulation.run()
 
 	# Serialize the simulation results for post processing
-	path = "./data/GaAs-20kV.dat"
+	path = "./data/simulation/GaAs-20kV.3"
 	p.dump( {"config": config, "Simulation.result" : Simulation.result } , open(path, "wb") )

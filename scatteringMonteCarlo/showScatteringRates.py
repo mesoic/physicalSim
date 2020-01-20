@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------
-# 	physicsUtilities -> materialScatteringRates.py
+# 	scatteringMonteCarlo -> materialScatteringRates.py
 #	Copyright (C) 2020 Michael Winters
 #	github: https://github.com/mesoic
 #	email:  mesoic@protonmail.com
