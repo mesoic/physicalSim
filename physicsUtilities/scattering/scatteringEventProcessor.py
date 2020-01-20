@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------
-# 	scatteringMonteCarlo -> scatteringEventProcessor.py
+# 	physicsUtilities/scattering -> scatteringEventProcessor.py
 #	Copyright (C) 2020 Michael Winters
 #	github: https://github.com/mesoic
 #	email:  mesoic@protonmail.com
@@ -28,12 +28,8 @@
 import numpy as np
 import random
 
-# So we can access physicsUtilities directory
-import sys
-sys.path.insert(1, '..')
-
 # Import physical and material constants
-from physicsUtilities.physicalConstants import physicalConstants
+from ..utilities.physicalConstants import physicalConstants
 
 # A data class to hold cylindrical wavevectors
 class cylindricalWavevector:

@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------
-# 	scatteringMonteCarlo -> velocityFieldSimulation.py
+# 	velocityField -> velocityFieldSimulation.py
 #	Copyright (C) 2020 Michael Winters
 #	github: https://github.com/mesoic
 #	email:  mesoic@protonmail.com
@@ -31,17 +31,14 @@ import pickle as p
 # Import matplotlib
 import matplotlib.pyplot as plt
 
-# Import ordered dict
-# So we can access physicsUtilities directory
-import sys
-sys.path.insert(1, '..')
+# Import async factory (multiprocessing)
+from physicsUtilities.utilities.asyncFactory import asyncFactory
 
 # Import physical and material constants
-from physicsUtilities.materialConstants import GaAs
-from physicsUtilities.genericUtilities import asyncFactory
+from physicsUtilities.solidstate.materialConstants import GaAs
 
 # Import Monte Carlo simulation
-from scatteringMonteCarlo import scatteringMonteCarlo
+from physicsUtilities.scattering.scatteringMonteCarlo import scatteringMonteCarlo
 
 # Simulate electron velocity vs. electric field
 class velocityFieldSimulation:
@@ -109,5 +106,5 @@ if __name__ == "__main__":
 	Simulation.run()
 
 	# Serialize the simulation results for post processing
-	path = "./data/simulation/GaAs-20kV.3"
+	path = "./data/simulation/GaAs-20kV.4"
 	p.dump( {"config": config, "Simulation.result" : Simulation.result } , open(path, "wb") )

@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------
-# 	scatteringMonteCarlo -> scatteringMonteCarlo.py
+# 	physicsUtilities/scattering -> scatteringMonteCarlo.py
 #	Copyright (C) 2020 Michael Winters
 #	github: https://github.com/mesoic
 #	email:  mesoic@protonmail.com
@@ -28,17 +28,13 @@
 import numpy as np
 import random
 
-# So we can access physicsUtilities directory
-import sys
-sys.path.insert(1, '..')
-
 # Import scattering rates object
-from physicsUtilities.materialScatteringRates import materialScatteringRates
+from ..solidstate.materialScatteringRates import materialScatteringRates
 
 # Import simulation local utilities
-from scatteringEventProcessor import solidStateElectron
-from scatteringEventProcessor import cylindricalWavevector
-from scatteringEventProcessor import scatteringEventProcessor
+from .scatteringEventProcessor import solidStateElectron
+from .scatteringEventProcessor import cylindricalWavevector
+from .scatteringEventProcessor import scatteringEventProcessor
 
 # A class to simulate velocity saturation with intervalley scattering. 
 # via Monte Carlo methods.

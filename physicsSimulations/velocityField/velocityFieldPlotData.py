@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------
-# 	scatteringMonteCarlo -> velocityFieldPlotData.py
+# 	velocityField -> velocityFieldPlotData.py
 #	Copyright (C) 2020 Michael Winters
 #	github: https://github.com/mesoic
 #	email:  mesoic@protonmail.com
@@ -31,13 +31,8 @@ import pickle as p
 # Import matplotlib
 import matplotlib.pyplot as plt 
 
-# So we can access physicsUtilities directory
-import sys
-sys.path.insert(1, '..')
-
 # Import physical and material constants
-from physicsUtilities.genericUtilities import smooth
-
+from physicsUtilities.utilities.curveUtilities import smooth
 
 # Routine to plot and analyze postprocessed velocity field data
 if __name__ == "__main__":

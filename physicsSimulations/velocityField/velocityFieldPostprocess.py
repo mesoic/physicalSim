@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------
-# 	scatteringMonteCarlo -> velocityFieldPostprocess.py
+# 	velocityField -> velocityFieldPostprocess.py
 #	Copyright (C) 2020 Michael Winters
 #	github: https://github.com/mesoic
 #	email:  mesoic@protonmail.com
@@ -28,15 +28,11 @@
 import numpy as np
 import pickle as p
 
-# So we can access physicsUtilities directory
-import sys
-sys.path.insert(1, '..')
-
 # Import matplotlib
 import matplotlib.pyplot as plt
 
 # Import physical and material constants
-from physicsUtilities.materialConstants import GaAs
+from physicsUtilities.solidstate.materialConstants import GaAs
 
 # Routines to postprocess velocity field simulation data. This routine 
 # averages velocity for each simulation and produces a composite average 
@@ -44,14 +40,22 @@ from physicsUtilities.materialConstants import GaAs
 if __name__ == "__main__":
 
 	# List of simulation datafiles to postprocess
-	paths = [ 
-		"./data/simulation/GaAs-20kV.0",
-		"./data/simulation/GaAs-20kV.1",
-		"./data/simulation/GaAs-20kV.2"
-	]
+	if False:
 
-	# Path to output file
-	postprocess_path = "./data/postprocess/GaAs-20kV.dat"
+		# Set simulation name		
+		simulation_name = "GaAs-20kV"
+
+		# Build simulation paths
+		paths = [ "./data/simulation/%s.%s"%(simulation_name, int(_)) for _ in range(3) ]
+		
+		# Path to output file
+		postprocess_path = "./data/postprocess/%s.dat"%simulation_name
+
+	# For working with single files
+	else:	
+
+		paths = ["./data/simulation/GaAs-20kV.4"]
+		postprocess_path = "./data/postprocess/tmp.dat"
 
 	# Dictionary to hold processed data
 	postprocess_data = {}

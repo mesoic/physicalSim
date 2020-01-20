@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------
-# 	scatteringMonteCarlo -> velocityFieldStatistics.py
+# 	velocityField -> velocityFieldStatistics.py
 #	Copyright (C) 2020 Michael Winters
 #	github: https://github.com/mesoic
 #	email:  mesoic@protonmail.com
@@ -41,11 +41,11 @@ import sys
 sys.path.insert(1, '..')
 
 # Import physical and material constants
-from physicsUtilities.materialConstants import GaAs
+from physicsUtilities.solidstate.materialConstants import GaAs
 
 # Import utilites
-from physicsUtilities.genericUtilities import smooth
-from physicsUtilities.genericUtilities import histogram_curve
+from physicsUtilities.utilities.curveUtilities import smooth
+from physicsUtilities.utilities.curveUtilities import histogram_curve
 
 
 # Script to extract statistics from data files

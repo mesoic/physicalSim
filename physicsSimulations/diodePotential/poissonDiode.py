@@ -32,12 +32,12 @@ import matplotlib.pyplot as plt
 # For solver
 from copy import deepcopy 
 
-# So we can access physicsUtilities directory
-import sys
-sys.path.insert(1, '..')
 
-from physicsUtilities.materialConstants import Silicon
-import physicsUtilities.discreteDifferentialEquation as DDE
+# Import Silicon material constants
+from physicsUtilities.solidstate.materialConstants import Silicon
+
+# Import discrete differential equation
+import physicsUtilities.utilities.discreteDifferentialEquation as DDE
 
 # A class to set up and solve Poisson via the finite difference method
 class pnJunction:

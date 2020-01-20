@@ -32,10 +32,10 @@ import sys
 sys.path.insert(1, '..')
 
 # Import physical and material constants
-from physicsUtilities.materialConstants import GaAs
+from physicsUtilities.solidstate.materialConstants import GaAs
 
 # Import Monte Carlo simulation
-from scatteringMonteCarlo import scatteringMonteCarlo
+from physicsUtilities.scattering.scatteringMonteCarlo import scatteringMonteCarlo
 
 # Matplotlib
 import matplotlib.pyplot as plt

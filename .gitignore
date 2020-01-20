@@ -7,7 +7,7 @@ __pycache__/
 *.so
 
 # Heavy data folders
-scatteringMonteCarlo/data/simulation
+velocityField/data/simulation/
 
 # Distribution / packaging
 .Python

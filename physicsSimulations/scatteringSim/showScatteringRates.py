@@ -27,13 +27,9 @@
 #!/usr/bin/env python 
 import numpy as np
 
-# So we can access physicsUtilities directory
-import sys
-sys.path.insert(1, '..')
-
 # Import physical and material constants
-from physicsUtilities.materialConstants import GaAs
-from physicsUtilities.materialScatteringRates import materialScatteringRates
+from physicsUtilities.solidstate.materialConstants import GaAs
+from physicsUtilities.solidstate.materialScatteringRates import materialScatteringRates
 
 # Program to plot phonon scattering rates in GaAs
 if __name__ == "__main__":

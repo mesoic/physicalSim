@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------
-# 	physicsUtilities -> asyncFactory.py
+# 	physicsUtilities/utilities -> asyncFactory.py
 #	Copyright (C) 2020 Michael Winters
 #	github: https://github.com/mesoic
 #	email:  mesoic@protonmail.com
@@ -24,9 +24,6 @@
 #	SOFTWARE.
 #
 
-#!/usr/bin/env python
-import numpy as np
-
 # For asyncfactory
 import multiprocessing as mp
 
@@ -49,59 +46,3 @@ class asyncFactory:
 
 		self.pool.close()
 		self.pool.join()
-
-
-# Scipy cookbook signal processing (smooth)
-def smooth(_x, window_len=11, window='hanning'):
-  
-	# Cast input as an np.array 
-	x = np.array(_x)
-
-	# Check dimension
-	if x.ndim != 1:
-		
-		raise ValueError("smooth only accepts 1 dimension arrays.")
-
-	# Check window size
-	if x.size < window_len:
-		
-		raise ValueError("Input vector needs to be bigger than window size.")
-
-	# Check minimum window length
-	if window_len < 3:
-		
-		return x
-
-	# Check if window is valid type
-	if not window in ['flat', 'hanning', 'hamming', 'bartlett', 'blackman']:
-		
-		raise ValueError("Window is on of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'")
-
-	# Row wize merging
-	s = np.r_[ x[window_len-1 : 0 :-1], x, x[-2: -window_len-1 : -1] ]
-
-	#print(s)
-	#rint(len(s))
-	if window == 'flat': #moving average
-
-		w = np.ones(window_len,'d')
-
-	# Prepare window
-	else:
-
-		w = eval('np.' + window + '(window_len)')
-
-	# Perfrom convolution and return
-	y = np.convolve( w / w.sum(), s, mode='same')
-
-	return y[ (window_len - 1): -(window_len - 1) ]
-
-
-# Method tor return a histogram curve
-def histogram_curve(data, bins=20, normed=True):
-
-	yhist, binedges = np.histogram( data, bins=bins, normed=normed )
-
-	bincenters = np.mean(np.vstack( [binedges[0:-1],binedges[1:]] ), axis=0)
-
-	return bincenters, yhist

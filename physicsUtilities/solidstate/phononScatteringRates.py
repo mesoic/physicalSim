@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------
-# 	physicsUtilities -> phononScatteringRates.py
+# 	physicsUtilities/solidstate -> phononScatteringRates.py
 #	Copyright (C) 2020 Michael Winters
 #	github: https://github.com/mesoic
 #	email:  mesoic@protonmail.com
@@ -28,7 +28,7 @@
 import numpy as np
 
 # Import physical constants
-from .physicalConstants import physicalConstants
+from ..utilities.physicalConstants import physicalConstants
 
 # Container class for phonon scattering data
 class phononScatteringData:
