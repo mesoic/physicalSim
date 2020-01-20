@@ -6,9 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
-# Development folder
+# Heavy data folders
 scatteringMonteCarlo/data/simulation
-
 
 # Distribution / packaging
 .Python

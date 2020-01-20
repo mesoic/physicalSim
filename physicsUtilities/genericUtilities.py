@@ -95,3 +95,13 @@ def smooth(_x, window_len=11, window='hanning'):
 	y = np.convolve( w / w.sum(), s, mode='same')
 
 	return y[ (window_len - 1): -(window_len - 1) ]
+
+
+# Method tor return a histogram curve
+def histogram_curve(data, bins=20, normed=True):
+
+	yhist, binedges = np.histogram( data, bins=bins, normed=normed )
+
+	bincenters = np.mean(np.vstack( [binedges[0:-1],binedges[1:]] ), axis=0)
+
+	return bincenters, yhist

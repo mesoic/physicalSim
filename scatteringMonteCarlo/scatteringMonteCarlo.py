@@ -78,7 +78,6 @@ class scatteringMonteCarlo:
 			"time" 		: [0.0],
 			"valley"	: [self.electron.valley],
 			"energy"	: [self.electron.E],
-			#"wavevector": [self.electron.K],
 			"velocity"	: [self.electron.v],
 			"field"		: self.field
 		}
@@ -118,4 +117,3 @@ class scatteringMonteCarlo:
 			self.result["valley"].append(self.electron.valley)
 			self.result["energy"].append(self.electron.E)	
 			self.result["velocity"].append(self.electron.v)
-			#self.result["wavevector"].append(self.electron.K)
