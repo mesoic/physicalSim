@@ -34,7 +34,7 @@ except ImportError:
 	print('Please install or upgrade setuptools or pip to continue')
 	sys.exit(1)
 
-setup(name='minispice',
+setup(name='physicsUtilities',
 		description='Functions and utility classes for physics simulations',
 		version='1.1dev0',
 		author='Michael Winters',

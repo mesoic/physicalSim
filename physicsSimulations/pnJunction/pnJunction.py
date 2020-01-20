@@ -172,7 +172,7 @@ if __name__ == "__main__":
 	# 	potential 	: { phi' | phi/Vt } (Thermal voltage scaling) 
 	#
 	config = {
-		"npoints" : 100,
+		"npoints" : 1000,
 		"epsilon" : 1.0,
 		"converge": 1e-8,
 		"maxiter" : 10
@@ -190,34 +190,34 @@ if __name__ == "__main__":
 	phi_solve = diode.solve( phi )
 
 	# Plot results
-	plt.plot( toum(diode.x), diode.material.Vt * phi )	
-	plt.plot( toum(diode.x), diode.material.Vt * phi_solve ) 
+	fig = plt.figure()
+	ax0 = fig.add_subplot(111)
+	ax0.set_title("pn-Junction : $N_D = N^0_De^{-x^2/\\delta^2}$ : $N_A = N_A^0$")
+	ax0.set_xlabel("Distance $(\\mu m)$") 
+	ax0.set_ylabel("Potential $(\\phi)$") 
+	h0, = ax0.plot( toum(diode.x), diode.material.Vt * phi )	
+	h1, = ax0.plot( toum(diode.x), diode.material.Vt * phi_solve ) 
+
+	# place a text box in upper left in axes coords
+	props = dict(boxstyle='round', facecolor='white', alpha=0.5, linewidth=0.4)
+	ax0.text(0.53, 0.97,
+		"$\\partial^2_{x'} \\phi' = e^{\\phi'} - e^{-\\phi'} - N_D/n_i + N_A/n_i$   \n $\\phi' \\rightarrow \\phi / V_T$ \n $x' \\rightarrow x / \\lambda^i_D$", 
+		transform=ax0.transAxes, 
+		verticalalignment='top', 
+		bbox=props
+    )
+	ax0.legend([h0, h1], ["Approximation", "DDE Solution"], loc=(0.68, 0.775))	
+
+
+	# Carrier density plot
+	fig = plt.figure()
+	ax0 = fig.add_subplot(111)
+	ax0.set_title("pn-Junction : $N_D = N^0_De^{-x^2/\\delta^2}$ : $N_A = N_A^0$")
+	ax0.set_xlabel("Distance $(\\mu m)$") 
+	ax0.set_ylabel("Carrier Density $(cm^{-3})$") 
+	n_carriers = [np.nan if _  > 0 else abs(_) for _ in diode.material.ni * diode.f(phi_solve * diode.material.Vt) ]
+	p_carriers = [np.nan if _ <= 0 else abs(_) for _ in diode.material.ni * diode.f(phi_solve * diode.material.Vt) ]
+	h0, = ax0.semilogy( toum(diode.x) , n_carriers)
+	h1, = ax0.semilogy( toum(diode.x) , p_carriers)
+	ax0.legend([h0, h1], ["n-density", "p-density"])	
 	plt.show()
-
-	############################
-	# PLOTTING #
-	############################
-	# if False:
-
-	# 	fig = plt.figure(2)
-	# 	ax1 = fig.add_subplot(111)
-	# 	ax1.plot(_domain, guess,"r")
-	# 	ax1.plot(_domain, guess0,"r", linestyle="--")
-	# 	ax2 = ax1.twinx()
-	# 	ax2.semilogy(_domain, s.Nd,"k", linestyle="--")
-	# 	ax2.semilogy(_domain, s.Na,"k", linestyle="--")
-	# 	ax2.set_ylim(1e14,1e18)
-	# 	ax1.set_xlabel("Depth $(\mu m)$")
-	# 	ax1.set_ylabel("Potential $(V)$")
-	# 	ax2.set_ylabel("Carrier Density $(cm^{-3})$")
-	# 	ax1.set_ylim(-0.4,0.5)
-
-	# 	fig = plt.figure(3)
-	# 	ax1 = plt.subplot(111)
-	# 	ax2 = ax1.twinx()
-	# 	ax1.semilogy(_domain, Si.ni*s.getN(guess/Si.Vt),"k")
-	# 	ax2.semilogy(_domain, Si.ni*s.getP(guess/Si.Vt),"r")
-	# 	ax1.set_xlabel("Depth $(\mu m)$")
-	# 	ax1.set_ylabel("Electron Density $(cm^{-3})$")
-	# 	ax2.set_ylabel("Hole Density $(cm^{-3})$")
-	# 	plt.show()
