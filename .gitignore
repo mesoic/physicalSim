@@ -7,7 +7,7 @@ __pycache__/
 *.so
 
 # Heavy data folders
-velocityField/data/simulation/
+physicsSimulations/velocityField/data/simulation/
 
 # Distribution / packaging
 .Python

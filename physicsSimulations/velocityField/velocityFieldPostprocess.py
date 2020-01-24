@@ -40,16 +40,16 @@ from physicsUtilities.solidstate.materialConstants import GaAs
 if __name__ == "__main__":
 
 	# List of simulation datafiles to postprocess
-	if False:
+	if True:
 
-		# Set simulation name		
+		# Set simulation name
 		simulation_name = "GaAs-20kV"
 
 		# Build simulation paths
-		paths = [ "./data/simulation/%s.%s"%(simulation_name, int(_)) for _ in range(3) ]
+		paths = [ "./data/simulation/%s.%s"%(simulation_name, int(_)) for _ in range(12) ]
 		
 		# Path to output file
-		postprocess_path = "./data/postprocess/%s.dat"%simulation_name
+		postprocess_path = "./data/postprocess/%s-1.2e6.dat"%simulation_name
 
 	# For working with single files
 	else:	

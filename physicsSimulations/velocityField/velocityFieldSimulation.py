@@ -92,19 +92,21 @@ class velocityFieldSimulation:
 
 if __name__ == "__main__":
 
-	# Generate configuration dictionary for simulation
-	config = {
-		"material"	: GaAs(),
-		"energy"	: np.linspace(0.0, 2.0, 1000),
-		"field"		: np.linspace(300, 2e4, 100),
-		"events"	: 1000
-	}
+	for _run in [12,13,14]:
+
+		# Generate configuration dictionary for simulation
+		config = {
+			"material"	: GaAs(),
+			"energy"	: np.linspace(0.0, 2.0, 1000),
+			"field"		: np.linspace(300, 2e4, 100),
+			"events"	: 100000
+		}
 
 
-	# Initialize simulation
-	Simulation = velocityFieldSimulation(config)
-	Simulation.run()
+		# Initialize simulation
+		Simulation = velocityFieldSimulation(config)
+		Simulation.run()
 
-	# Serialize the simulation results for post processing
-	path = "./data/simulation/GaAs-20kV.4"
-	p.dump( {"config": config, "Simulation.result" : Simulation.result } , open(path, "wb") )
+		# Serialize the simulation results for post processing
+		path = "./data/simulation/GaAs-20kV.%s"%_run
+		p.dump( {"config": config, "Simulation.result" : Simulation.result } , open(path, "wb") )

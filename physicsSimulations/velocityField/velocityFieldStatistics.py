@@ -51,13 +51,12 @@ from physicsUtilities.utilities.curveUtilities import histogram_curve
 # Script to extract statistics from data files
 if __name__ == "__main__":
 
+	# Set simulation name
+	simulation_name = "GaAs-20kV"
 
 	# List of simulation datafiles to postprocess
-	paths = [ 
-		"./data/simulation/GaAs-20kV.0",
-		"./data/simulation/GaAs-20kV.1",
-		"./data/simulation/GaAs-20kV.2"
-	]
+	paths = [ "./data/simulation/%s.%s"%(simulation_name, int(_)) for _ in range(12) ]
+
 
 	# List of fields to generate statistics for
 	fields = [1e3, 5e3, 10e3, 20e3]
@@ -97,6 +96,8 @@ if __name__ == "__main__":
 
 
 	# Plot the data	(velocity)
+	_smooth = 15
+
 	fig = plt.figure()
 	ax0 = fig.add_subplot(111)
 
@@ -105,7 +106,7 @@ if __name__ == "__main__":
 
 		bins, hist = histogram_curve( statistics[_f]["velocity"] , bins=300, normed=False )
 
-		h, = ax0.plot(bins, smooth(hist,5) )
+		h, = ax0.plot(bins, smooth(hist, _smooth) )
 
 		hlist.append(h)
 
@@ -123,7 +124,7 @@ if __name__ == "__main__":
 
 		bins, hist = histogram_curve( statistics[_f]["energy"] , bins=300, normed=False )
 
-		h, = ax0.plot(bins, smooth(hist,5) )
+		h, = ax0.plot(bins, smooth(hist, _smooth) )
 
 		hlist.append(h)
 

@@ -38,13 +38,14 @@ from physicsUtilities.utilities.curveUtilities import smooth
 if __name__ == "__main__":
 
 	# Data path
-	postprocess_path = "./data/postprocess/GaAs-20kV.dat"
+	postprocess_path = "./data/postprocess/GaAs-20kV-1.2e6.dat"
 
 	# Data to analyze (keys are filenames)
 	postprocess_data = p.load( open( postprocess_path, "rb") )
 
 	# Calculate differential mobility on smoothed signal
-	mobility = np.gradient( smooth( postprocess_data["composite"]["velocity"] ) , postprocess_data["composite"]["field"] ) 
+	_smooth  = 13
+	mobility = np.gradient( smooth( postprocess_data["composite"]["velocity"], _smooth) , postprocess_data["composite"]["field"] ) 
 
 	# Plot electron velocity vs. electric field
 	if True: 
@@ -52,7 +53,7 @@ if __name__ == "__main__":
 		fig = plt.figure()
 		ax0 = fig.add_subplot(111)
 		ax1 = ax0.twinx()
-		h0, = ax0.plot( postprocess_data["composite"]["field"] / 1e3, postprocess_data["composite"]["velocity"], "tab:blue" ) 
+		h0, = ax0.plot( postprocess_data["composite"]["field"] / 1e3, smooth(postprocess_data["composite"]["velocity"], _smooth), "tab:blue" ) 
 		h1, = ax1.plot( postprocess_data["composite"]["field"] / 1e3, mobility, "tab:orange" ) 
 		ax0.set_xlabel("Electric Field $(kV/cm)$")
 		ax0.set_ylabel("Electron Velocity $(cm/s)$")
@@ -68,8 +69,8 @@ if __name__ == "__main__":
 		
 		fig = plt.figure()
 		ax0 = fig.add_subplot(111)
-		h0, = ax0.plot( postprocess_data["composite"]["field"] / 1e3, postprocess_data["composite"]["valley"]["G"] / time )
-		h1, = ax0.plot( postprocess_data["composite"]["field"] / 1e3, postprocess_data["composite"]["valley"]["L"] / time )
+		h0, = ax0.plot( postprocess_data["composite"]["field"] / 1e3, smooth(postprocess_data["composite"]["valley"]["G"] / time, _smooth ) )
+		h1, = ax0.plot( postprocess_data["composite"]["field"] / 1e3, smooth(postprocess_data["composite"]["valley"]["L"] / time, _smooth ) )
 		ax0.set_xlabel("Electric Field $(kV/cm)$")
 		ax0.set_ylabel("Valley Occupancy $(\%)$")
 		ax0.set_title("GaAs Electron Phonon Scattering: Valley Occupancy")
