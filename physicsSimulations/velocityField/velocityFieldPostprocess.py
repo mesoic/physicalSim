@@ -46,10 +46,10 @@ if __name__ == "__main__":
 		simulation_name = "GaAs-20kV"
 
 		# Build simulation paths
-		paths = [ "./data/simulation/%s.%s"%(simulation_name, int(_)) for _ in range(12) ]
+		paths = [ "./data/simulation/%s.%s"%(simulation_name, int(_)) for _ in range(25) ]
 		
 		# Path to output file
-		postprocess_path = "./data/postprocess/%s-1.2e6.dat"%simulation_name
+		postprocess_path = "./data/postprocess/%s-2.5e6.dat"%simulation_name
 
 	# For working with single files
 	else:	

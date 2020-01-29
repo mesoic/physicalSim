@@ -38,7 +38,7 @@ from physicsUtilities.utilities.curveUtilities import smooth
 if __name__ == "__main__":
 
 	# Data path
-	postprocess_path = "./data/postprocess/GaAs-20kV-1.2e6.dat"
+	postprocess_path = "./data/postprocess/GaAs-20kV-2.5e6.dat"
 
 	# Data to analyze (keys are filenames)
 	postprocess_data = p.load( open( postprocess_path, "rb") )

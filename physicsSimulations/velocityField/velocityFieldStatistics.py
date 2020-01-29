@@ -55,7 +55,7 @@ if __name__ == "__main__":
 	simulation_name = "GaAs-20kV"
 
 	# List of simulation datafiles to postprocess
-	paths = [ "./data/simulation/%s.%s"%(simulation_name, int(_)) for _ in range(12) ]
+	paths = [ "./data/simulation/%s.%s"%(simulation_name, int(_)) for _ in range(25) ]
 
 
 	# List of fields to generate statistics for

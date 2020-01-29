@@ -92,7 +92,7 @@ class velocityFieldSimulation:
 
 if __name__ == "__main__":
 
-	for _run in [12,13,14]:
+	for _run in [22,23,24]:
 
 		# Generate configuration dictionary for simulation
 		config = {
